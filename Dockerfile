@@ -1,20 +1,26 @@
-FROM frolvlad/alpine-glibc:latest
+FROM paperist/alpine-texlive-ja:latest
 
 LABEL MAINTAINER=inside-hakumai
 
-ENV PATH=/usr/local/texlive/2018/bin/x86_64-linuxmusl:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# ipaex-type1 パッケージの導入
+RUN /bin/sh -c 'wget -O /tmp/ipaex-type1.zip http://mirrors.ctan.org/fonts/ipaex-type1.zip \
+    && unzip /tmp/ipaex-type1.zip -d /tmp \ 
+    && mkdir /usr/local/texlive/2018/texmf-dist/fonts/tfm/public/ipaex-type1 \
+    && mkdir /usr/local/texlive/2018/texmf-dist/fonts/type1/public/ipaex-type1 \
+    && mkdir /usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/ipaex-type1 \
+    && mkdir /usr/local/texlive/2018/texmf-dist/fonts/map/dvips/ipaex-type1 \
+    && mkdir /usr/local/texlive/2018/texmf-dist/tex/latex/ipaex-type1 \
+    && cp /tmp/ipaex-type1/tfm/*.tfm /usr/local/texlive/2018/texmf-dist/fonts/tfm/public/ipaex-type1/ \
+    && cp /tmp/ipaex-type1/type1/*.pfb /usr/local/texlive/2018/texmf-dist/fonts/type1/public/ipaex-type1/ \
+    && cp /tmp/ipaex-type1/enc/*.enc /usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/ipaex-type1/ \
+    && cp /tmp/ipaex-type1/ipaex-type1.map /usr/local/texlive/2018/texmf-dist/fonts/map/dvips/ipaex-type1/ \
+    && cp /tmp/ipaex-type1/*.sty /usr/local/texlive/2018/texmf-dist/tex/latex/ipaex-type1/ \
+    && cp /tmp/ipaex-type1/*.fd /usr/local/texlive/2018/texmf-dist/tex/latex/ipaex-type1/ \
+    && cp /tmp/ipaex-type1/*.fdx /usr/local/texlive/2018/texmf-dist/tex/latex/ipaex-type1/ \
+    && cd /usr/local/texlive/2018/texmf-dist/tex/latex/ipaex-type1; mktexlsr \
+    && updmap --enable Map ipaex-type1.map -sys'
 
-RUN /bin/sh -c apk --no-cache add perl wget xz tar fontconfig-dev freetype-dev \
-    && mkdir /tmp/install-tl-unx \
-    && wget -qO - ftp://tug.org/historic/systems/texlive/2018/install-tl-unx.tar.gz | tar -xz -C /tmp/install-tl-unx --strip-components=1 \
-    && printf "%s\n" "selected_scheme scheme-basic" "option_doc 0" "option_src 0" > /tmp/install-tl-unx/texlive.profile \
-    && /tmp/install-tl-unx/install-tl --profile=/tmp/install-tl-unx/texlive.profile \
-    && tlmgr install collection-basic collection-latex collection-latexrecommended collection-latexextra collection-fontsrecommended collection-langjapanese latexmk xetex \
-    && rm -fr /tmp/install-tl-unx \
-    && apk --no-cache del xz tar
-
-RUN /bin/sh -c apk --no-cache add bash make
-RUN /bin/sh -c mkdir /workdir
+RUN /bin/sh -c 'apk --no-cache add bash make'
 
 WORKDIR /workdir
 
