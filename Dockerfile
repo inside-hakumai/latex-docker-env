@@ -20,6 +20,15 @@ RUN /bin/sh -c 'wget -O /tmp/ipaex-type1.zip http://mirrors.ctan.org/fonts/ipaex
     && cd /usr/local/texlive/2018/texmf-dist/tex/latex/ipaex-type1; mktexlsr \
     && updmap --enable Map ipaex-type1.map -sys'
 
+# algorithmic / algorithm パッケージの導入
+RUN /bin/sh -c 'wget -O /tmp/algorithms.zip http://mirrors.ctan.org/macros/latex/contrib/algorithms.zip \
+    && unzip /tmp/algorithms.zip -d /tmp \
+    && cd /tmp/algorithms; latex algorithms.ins \
+    && mkdir /usr/local/texlive/2018/texmf-dist/tex/platex/algorithms \
+    && cp /tmp/algorithms/algorithm.sty /usr/local/texlive/2018/texmf-dist/tex/platex/algorithms/ \
+    && cp /tmp/algorithms/algorithmic.sty /usr/local/texlive/2018/texmf-dist/tex/platex/algorithms/ \
+    && cd /usr/local/texlive/2018/texmf-dist/tex/platex/algorithms; mktexlsr'
+
 RUN /bin/sh -c 'apk --no-cache add bash make'
 
 WORKDIR /workdir
